@@ -1,28 +1,26 @@
-
 const express = require("express");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 app.use(express.json());
 
 app.post("/api/chat", async (req, res) => {
   const userMessage = req.body.message;
   try {
-    const completion = await openai.createChatCompletion({
+    const chatCompletion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [{ role: "user", content: userMessage }],
     });
-    res.json({ reply: completion.data.choices[0].message.content });
+    res.json({ reply: chatCompletion.choices[0].message.content });
   } catch (err) {
-    res.status(500).json({ error: "Error from OpenAI", details: err.message });
+    res.status(500).json({ error: "OpenAI API error", details: err.message });
   }
 });
 
